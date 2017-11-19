@@ -1,0 +1,7 @@
+[slack]
+webhook_url=https://hooks.slack.com/services/...
+
+[coins]
+# comma separate list of coins to fetch from each service
+coinbase=BTC,ETH,LTC
+coincap=BCH

@@ -1,0 +1,33 @@
+# Cryptocoin2slack
+
+Pull the latest values from coinbase or coincap.io and post to a slack channel
+
+## Requirements
+
+- Python v3.5.x is what it's tested on.  Unsure how far back in v3 series it can go
+
+## Usage
+
+* Copy `config.ini.example` to `config.ini`.
+* Add the slack webhook url.
+* Add the list of coins you want from each service as a comma separated list (ex `BTC,ETH,LTC`)
+    * Coinbase only supports BTC, ETH, and LTC at the moment but any new symbols they add should just work.
+    * Coincap.io you can use anything listed at https://coincap.io.
+* Run `./post_cryptocoin_prices.py --help` for a list of any options you may want to set.
+* Run `./post_cryptocoin_prices.py -d` to a dry run (pulls prices but doesn't post to slack).
+* Run `./post_cryptocoin_prices.py` to actually post them.
+
+The default log level is INFO which at a minimum will print the current prices.  When running from crontab this isn't really needed.  Couple ways to get around that.
+
+The lazy way:
+
+```
+./post_cryptocoin_prices.py >/dev/null 2>&1
+```
+
+The better way. Recommend ERROR level but CRITICAL will be the most quiet:
+
+```
+LOGLEVEL=ERROR ./post_cryptocoin_prices.py
+```
+
