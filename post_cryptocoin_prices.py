@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Post latest prices to slack.
-
-Environment Variables
-    LOGLEVEL: overrides the level specified here. Default is info
-        option: DEBUG, INFO, WARNING, ERROR, or CRITICAL
-"""
+"""Post latest cryptocoin prices to slack."""
 import sys
 import os
 import logging
+import logging.config
+import logging.handlers
 import json
 import urllib.request
 import urllib.parse
 from configparser import ConfigParser
-from optparse import OptionParser
+from argparse import ArgumentParser
+
+import log_config
 
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
-def _parse_opts(argv=None):
+def _parse_opts():
     """Parse the command line options.
 
     :param list argv: List of arguments to process. If not provided then will
@@ -28,19 +27,21 @@ def _parse_opts(argv=None):
         were parsed and args is whatever arguments are left after parsing all
         options.
     """
-    parser = OptionParser(version='%prog {}'.format(__version__))
-    parser.set_defaults(verbose=False, dryrun=False)
-    parser.add_option(
-        '-c', '--config', dest='config', metavar='FILE',
-        help='use config FILE (default: %default)', default='config.ini')
-    parser.add_option(
-        '-v', '--verbose', dest='verbose', action='store_true',
-        help='be more verbose (default is no)')
-    parser.add_option(
-        '-d', '--dryrun', dest='dryrun', action='store_true',
+    parser = ArgumentParser()
+    parser.add_argument(
+        '--version', action='version',
+        version='%(prog)s {}'.format(__version__))
+    parser.add_argument(
+        '--config', '-c', metavar='FILE',
+        help='use config FILE (default: %(default)s)', default='config.ini')
+    parser.add_argument(
+        '--verbose', '-v', action='count',
+        help='be more verbose. use -vv for more detail')
+    parser.add_argument(
+        '--dryrun', '-d', dest='dryrun', action='store_true',
         help='do not post to slack (default is to post to slack)')
-    (options, args) = parser.parse_args(argv)
-    return options, args
+    args = parser.parse_args()
+    return args
 
 
 def _get_coincap_usd(coin='BTC'):
@@ -81,7 +82,7 @@ def _post_slack_message(webhook_url, msg=None):
     log.debug(result)
 
 
-def main(argv=None):
+def main():
     """The main function.
 
     :param list argv: List of arguments passed to command line. Default is None,
@@ -92,13 +93,22 @@ def main(argv=None):
     :rtype: int
     """
     log = logging.getLogger('root')
-    if argv is None:
-        argv = sys.argv
-    options = _parse_opts(argv)[0]
+    options = _parse_opts()
     if options.verbose:
-        log.setLevel(logging.DEBUG)
+        if options.verbose == 1:
+            loglevel = 'INFO'
+        elif options.verbose >= 2:
+            loglevel = 'DEBUG'
+        logging.config.dictConfig({
+            "version": 1,
+            "incremental": True,
+            "handlers": {
+                "console": { "level": loglevel },
+                "file": { "level": loglevel },
+            },
+        })
     config = ConfigParser()
-    config.read('config.ini')
+    config.read(options.config)
     slack_webhook_url = config['slack']['webhook_url']
     coin_prices = []
     for coin in config['coins']['coinbase'].split(','):
@@ -113,7 +123,5 @@ def main(argv=None):
 
 if __name__ == "__main__":
     # Configure logging only if called directly
-    _loglevel = getattr(logging, os.getenv('LOGLEVEL', 'INFO').upper())
-    _logformat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    logging.basicConfig(level=_loglevel, format=_logformat)
+    logging.config.dictConfig(log_config.config)
     sys.exit(main())

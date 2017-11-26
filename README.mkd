@@ -4,7 +4,7 @@ Pull the latest values from coinbase or coincap.io and post to a slack channel
 
 ## Requirements
 
-- Python v3.5.x is what it's tested on.  Unsure how far back in v3 series it can go
+- Python v3.5.x is what it's tested on.  Unsure how far back in v3 series it can go but it won't work in v2.7
 
 ## Usage
 
@@ -14,20 +14,7 @@ Pull the latest values from coinbase or coincap.io and post to a slack channel
     * Coinbase only supports BTC, ETH, and LTC at the moment but any new symbols they add should just work.
     * Coincap.io you can use anything listed at https://coincap.io.
 * Run `./post_cryptocoin_prices.py --help` for a list of any options you may want to set.
-* Run `./post_cryptocoin_prices.py -d` to a dry run (pulls prices but doesn't post to slack).
+* Run `./post_cryptocoin_prices.py -dv` to pull prices without posting to slack (need at lest one `-v` in order to see anything print out).
 * Run `./post_cryptocoin_prices.py` to actually post them.
 
-The default log level is INFO which at a minimum will print the current prices.  When running from crontab this isn't really needed.  Couple ways to get around that.
-
-The lazy way:
-
-```
-./post_cryptocoin_prices.py >/dev/null 2>&1
-```
-
-The better way. Recommend ERROR level but CRITICAL will be the most quiet:
-
-```
-LOGLEVEL=ERROR ./post_cryptocoin_prices.py
-```
-
+By default nothing prints to screen other than WARNINGS or higher. Use `-v` to display INFO messages and `-vv` shows a bunch of debugging info. This changes it for both console and log file (although log file defaults to INFO).  See `log_config.py` to make adjustments.
