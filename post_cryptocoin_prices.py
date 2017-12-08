@@ -9,6 +9,7 @@ import logging.handlers
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
 from configparser import ConfigParser
 from argparse import ArgumentParser
 
@@ -51,8 +52,13 @@ def _get_coincap_usd(coin='BTC'):
     req.add_header(
         'User-Agent',
         'coincap2slack/{} (github.com/vrillusions/cryptocoin2slack)'.format(__version__))
-    with urllib.request.urlopen(req) as f:
-        data = json.loads(f.read().decode('utf-8'))
+    try:
+        with urllib.request.urlopen(req) as f:
+            data = json.loads(f.read().decode('utf-8'))
+    except urllib.error.URLError as exc:
+        log.error("could not retrieve value for {}: {}".format(
+            coin, exc.reason))
+        return 'err'
     log.debug(data)
     return '{:1.2f}'.format(data['price_usd'])
 
@@ -65,8 +71,13 @@ def _get_coinbase_spot(coin='BTC'):
     req.add_header(
         'User-Agent',
         'coincap2slack/{} (github.com/vrillusions/cryptocoin2slack)'.format(__version__))
-    with urllib.request.urlopen(req) as f:
-        spot_data = json.loads(f.read().decode('utf-8'))
+    try:
+        with urllib.request.urlopen(req) as f:
+            spot_data = json.loads(f.read().decode('utf-8'))
+    except urllib.error.URLError as exc:
+        log.error("could not retrieve value for {}: {}".format(
+            coin, exc.reason))
+        return 'err'
     log.debug(spot_data)
     return spot_data['data']['amount']
 
