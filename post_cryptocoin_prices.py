@@ -60,7 +60,7 @@ def _get_coincap_usd(coin='BTC'):
             coin, exc.reason))
         return 'err'
     log.debug(data)
-    return '{:1.2f}'.format(data['price_usd'])
+    return '{:1.2f}'.format(data['price'])
 
 
 def _get_coinbase_spot(coin='BTC'):
