@@ -122,10 +122,12 @@ def main():
     config.read(options.config)
     slack_webhook_url = config['slack']['webhook_url']
     coin_prices = []
-    for coin in config['coins']['coinbase'].split(','):
-        coin_prices.append('{}: {}'.format(coin, _get_coinbase_spot(coin)))
-    for coin in config['coins']['coincap'].split(','):
-        coin_prices.append('{}: {}'.format(coin, _get_coincap_usd(coin)))
+    if config['coins']['coinbase']:
+        for coin in config['coins']['coinbase'].split(','):
+            coin_prices.append('{}: {}'.format(coin, _get_coinbase_spot(coin)))
+    if config['coins']['coincap'] != "":
+        for coin in config['coins']['coincap'].split(','):
+            coin_prices.append('{}: {}'.format(coin, _get_coincap_usd(coin)))
     msg = ' - '.join(coin_prices)
     log.info(msg)
     if not options.dryrun:

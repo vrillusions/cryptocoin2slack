@@ -3,5 +3,7 @@ webhook_url=https://hooks.slack.com/services/...
 
 [coins]
 # comma separate list of coins to fetch from each service
+# if you don't want to pull anything from that service then make it blank
+# after = (ex: `coincap=`)
 coinbase=BTC,ETH,LTC
 coincap=BCH
