@@ -1,5 +1,9 @@
 [slack]
 webhook_url=https://hooks.slack.com/services/...
+# DEFAULT will use the channel configured in webhook
+# to specify a channel use full name (ie `#channel-name`)
+# to specify a person use full username (ie `@user.name`)
+channels=DEFAULT
 
 [coins]
 # comma separate list of coins to fetch from each service

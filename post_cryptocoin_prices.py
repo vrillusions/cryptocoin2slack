@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 import log_config
 
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 
 def _parse_opts():
@@ -82,10 +82,21 @@ def _get_coinbase_spot(coin='BTC'):
     return spot_data['data']['amount']
 
 
-def _post_slack_message(webhook_url, msg=None):
+def _post_slack_message(webhook_url, msg=None, channel=None):
+    """Post message to a slack channel
+
+    :param string webhook_url: required webhook url to use
+    :param string msg: Message to post
+    :param string channel: Optional channel to post to (by default will use webhook's) Should be full channel '#example' or '@username'
+    """
     log = logging.getLogger('root._post_slack_message')
     payload = {}
     payload['text'] = msg
+    if channel:
+        payload['channel'] = channel
+        log.debug('using non default channel {}'.format(channel))
+    else:
+        log.debug('using default channel specified in webhook')
     data = urllib.parse.urlencode({'payload': json.dumps(payload)})
     data = data.encode('ascii')
     with urllib.request.urlopen(webhook_url, data) as f:
@@ -131,7 +142,13 @@ def main():
     msg = ' - '.join(coin_prices)
     log.info(msg)
     if not options.dryrun:
-        _post_slack_message(slack_webhook_url, msg)
+        if config['slack']['channels'] != "":
+            for channel in config['slack']['channels'].split(','):
+                if channel == 'DEFAULT':
+                   _post_slack_message(slack_webhook_url, msg=msg)
+                else:
+                   _post_slack_message(
+                        slack_webhook_url, msg=msg, channel=channel)
 
 
 if __name__ == "__main__":
