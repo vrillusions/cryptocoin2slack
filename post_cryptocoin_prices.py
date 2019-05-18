@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 import log_config
 
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 
 def _parse_opts():
@@ -60,7 +60,7 @@ def _get_coincap_usd(coin='BTC'):
             coin, exc.reason))
         return 'err'
     log.debug(data)
-    return '{:1.2f}'.format(data['price'])
+    return '{:1.2f}'.format(round(data['price'], 2))
 
 
 def _get_coinbase_spot(coin='BTC'):
@@ -79,7 +79,7 @@ def _get_coinbase_spot(coin='BTC'):
             coin, exc.reason))
         return 'err'
     log.debug(spot_data)
-    return spot_data['data']['amount']
+    return '{:1.2f}'.format(round(float(spot_data['data']['amount']), 2))
 
 
 def _post_slack_message(webhook_url, msg=None, channel=None):
