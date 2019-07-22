@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 import log_config
 
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 
 def _parse_opts():
@@ -48,7 +48,7 @@ def _parse_opts():
 def _get_coincap_usd(coin='BTC'):
     log = logging.getLogger('root._get_coincap_usd')
     req = urllib.request.Request(
-        'https://coincap.io/page/{}'.format(coin))
+        'https://api.coincap.io/v2/assets/?search={}'.format(coin))
     req.add_header(
         'User-Agent',
         'coincap2slack/{} (github.com/vrillusions/cryptocoin2slack)'.format(__version__))
@@ -60,7 +60,8 @@ def _get_coincap_usd(coin='BTC'):
             coin, exc.reason))
         return 'err'
     log.debug(data)
-    return '{:1.2f}'.format(round(data['price'], 2))
+    price = float(data['data'][0]['priceUsd'])
+    return '{:1.2f}'.format(round(price, 2))
 
 
 def _get_coinbase_spot(coin='BTC'):
